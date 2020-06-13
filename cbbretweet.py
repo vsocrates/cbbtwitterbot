@@ -5,6 +5,12 @@ import tweepy
 import boto3
 from botocore.exceptions import ClientError
 
+# TODO: NOT WORKING YET, add in integration to update since_id after check.
+# We use since_id to make our retweeting more efficient, 
+# as we only get the mentions newer that a specified tweet in time.
+# However, the production code works without this as we just silently error 
+# past already retweeted tweets
+
 def lambda_handler(event, context):
 
 
