@@ -23,5 +23,6 @@ def lambda_handler(event, context):
         api.retweet(mention.id)
         time.sleep( 5 )
     except tweepy.TweepError as e:
-      print(e)
+      if not e.api_code == 327:
+        print(e)
     
