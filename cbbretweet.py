@@ -16,13 +16,26 @@ def lambda_handler(event, context):
     friend_ids.append(friend_id)
 
   # TODO: implement support for extended tweets (240 chars)
-  for mention in tweepy.Cursor(api.mentions_timeline, include_rts = True).items():
+  for mention in tweepy.Cursor(api.mentions_timeline, include_rts = True, exclude_replies=False).items():
     try:
       # check whether this mention is in the whitelist of @YaleCBB friends
       if mention.user.id in friend_ids:
-        api.retweet(mention.id)
-        time.sleep( 5 )
+
+        # if a reply to another tweet, check if the original tweet was already retweeted
+        already_retweeted = False
+
+        if mention.in_reply_to_status_id:
+          orig_tweet = api.get_status(mention.in_reply_to_status_id, include_entities=True)
+          for mentioned_user in orig_tweet.entities['user_mentions']:
+            if mentioned_user['id'] == api.me().id:
+              already_retweeted = True
+
+        if not already_retweeted:
+          api.retweet(mention.id)
+          time.sleep( 5 )
+
     except tweepy.TweepError as e:
+      # Ignore all "already retweeted" errors 
       if not e.api_code == 327:
         print(e)
     
